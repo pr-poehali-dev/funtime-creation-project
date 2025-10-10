@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -230,6 +230,33 @@ const Index = () => {
   const [selectedDuration, setSelectedDuration] = useState<'30' | '90' | 'forever'>('90');
   const [activeCategory, setActiveCategory] = useState<'all' | 'privilege' | 'item' | 'service'>('all');
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [isFreePromo, setIsFreePromo] = useState(true);
+  const [timeLeft, setTimeLeft] = useState(15 * 60);
+
+  useEffect(() => {
+    if (timeLeft <= 0) {
+      setIsFreePromo(false);
+      return;
+    }
+
+    const timer = setInterval(() => {
+      setTimeLeft(prev => {
+        if (prev <= 1) {
+          setIsFreePromo(false);
+          return 0;
+        }
+        return prev - 1;
+      });
+    }, 1000);
+
+    return () => clearInterval(timer);
+  }, [timeLeft]);
+
+  const formatTime = (seconds: number) => {
+    const mins = Math.floor(seconds / 60);
+    const secs = seconds % 60;
+    return `${mins}:${secs.toString().padStart(2, '0')}`;
+  };
 
   const filteredProducts = activeCategory === 'all' 
     ? products 
@@ -242,6 +269,7 @@ const Index = () => {
   };
 
   const calculatePrice = (basePrice: number) => {
+    if (isFreePromo) return 0;
     if (selectedDuration === 'forever') return basePrice * 10;
     return Math.round(basePrice * getDurationMultiplier(selectedDuration));
   };
@@ -281,11 +309,18 @@ const Index = () => {
       <section className="py-12 md:py-20 relative overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-b from-primary/10 to-transparent pointer-events-none"></div>
         <div className="container mx-auto px-4 text-center relative z-10">
+          {isFreePromo && (
+            <div className="mb-6 inline-block">
+              <Badge className="bg-primary text-white text-lg px-6 py-3 neon-glow-strong animate-pulse">
+                🎉 ВСЕ БЕСПЛАТНО! Осталось: {formatTime(timeLeft)}
+              </Badge>
+            </div>
+          )}
           <h2 className="text-4xl md:text-6xl font-black mb-4 text-neon">
             Выберите товар
           </h2>
           <p className="text-muted-foreground text-lg mb-8">
-            Улучшите свой игровой опыт на сервере FunTime
+            {isFreePromo ? 'Успей забрать БЕСПЛАТНО!' : 'Улучшите свой игровой опыт на сервере FunTime'}
           </p>
           
           {/* Category Filter */}
@@ -335,8 +370,17 @@ const Index = () => {
                   </h3>
                   
                   <div className="flex items-baseline gap-2 mb-4">
-                    <span className="text-2xl font-black text-primary">от {product.price}</span>
-                    <span className="text-sm text-muted-foreground font-semibold">РУБ</span>
+                    {isFreePromo ? (
+                      <>
+                        <span className="text-2xl font-black text-primary line-through opacity-50">от {product.price}</span>
+                        <span className="text-3xl font-black text-green-500">БЕСПЛАТНО</span>
+                      </>
+                    ) : (
+                      <>
+                        <span className="text-2xl font-black text-primary">от {product.price}</span>
+                        <span className="text-sm text-muted-foreground font-semibold">РУБ</span>
+                      </>
+                    )}
                   </div>
 
                   {product.features && (
@@ -496,13 +540,29 @@ const Index = () => {
               <div className="border-t border-primary/30 pt-6">
                 <div className="flex items-center justify-between mb-4">
                   <span className="text-lg font-bold">Стоимость:</span>
-                  <span className="text-3xl font-black text-primary">
-                    {calculatePrice(selectedProduct.price)} руб
-                  </span>
+                  {isFreePromo ? (
+                    <div className="flex flex-col items-end">
+                      <span className="text-xl font-black text-muted-foreground line-through">
+                        {selectedProduct.price} руб
+                      </span>
+                      <span className="text-4xl font-black text-green-500">
+                        БЕСПЛАТНО!
+                      </span>
+                    </div>
+                  ) : (
+                    <span className="text-3xl font-black text-primary">
+                      {calculatePrice(selectedProduct.price)} руб
+                    </span>
+                  )}
                 </div>
                 <Button className="w-full bg-primary hover:bg-primary/90 text-white font-black text-lg py-6 neon-glow-strong">
-                  ПРИОБРЕСТИ
+                  {isFreePromo ? '🎁 ЗАБРАТЬ БЕСПЛАТНО' : 'ПРИОБРЕСТИ'}
                 </Button>
+                {isFreePromo && (
+                  <p className="text-center text-sm text-primary mt-3 font-bold">
+                    ⏰ Акция закончится через {formatTime(timeLeft)}
+                  </p>
+                )}
               </div>
             </div>
           )}
