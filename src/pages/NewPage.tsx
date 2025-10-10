@@ -53,12 +53,22 @@ const NewPage = () => {
       <div className="max-w-5xl mx-auto space-y-4">
         {/* Header */}
         <div className="flex items-center justify-between mb-6">
-          <div>
-            <h1 className="text-2xl font-black flex items-center gap-2">
-              <img src="https://cdn.poehali.dev/files/330e3912-fe26-42da-9bdc-85d1b13eb625.png" alt="" className="w-8 h-8 rounded" />
-              BlazeLegacy
-            </h1>
-            <p className="text-sm text-muted-foreground">funworldssezexxz.mcsh.io</p>
+          <div className="flex items-center gap-4">
+            <Button 
+              variant="outline" 
+              size="icon"
+              onClick={() => window.location.href = '/'}
+              className="border-primary/50 hover:border-primary"
+            >
+              <Icon name="ArrowLeft" size={20} />
+            </Button>
+            <div>
+              <h1 className="text-2xl font-black flex items-center gap-2">
+                <img src="https://cdn.poehali.dev/files/330e3912-fe26-42da-9bdc-85d1b13eb625.png" alt="" className="w-8 h-8 rounded" />
+                BlazeLegacy
+              </h1>
+              <p className="text-sm text-muted-foreground">funworldssezexxz.mcsh.io</p>
+            </div>
           </div>
           <Badge 
             variant={serverStatus === 'online' ? 'default' : serverStatus === 'restarting' ? 'secondary' : 'destructive'} 
