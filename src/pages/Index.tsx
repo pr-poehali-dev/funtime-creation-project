@@ -230,8 +230,8 @@ const Index = () => {
   const [selectedDuration, setSelectedDuration] = useState<'30' | '90' | 'forever'>('90');
   const [activeCategory, setActiveCategory] = useState<'all' | 'privilege' | 'item' | 'service'>('all');
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const [isFreePromo, setIsFreePromo] = useState(true);
-  const [timeLeft, setTimeLeft] = useState(15 * 60);
+  const [isFreePromo, setIsFreePromo] = useState(false);
+  const [timeLeft, setTimeLeft] = useState(0);
 
   useEffect(() => {
     if (timeLeft <= 0) {
