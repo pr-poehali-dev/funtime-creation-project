@@ -300,6 +300,7 @@ const Index = () => {
               <a href="#privileges" className="text-sm font-semibold hover:text-primary transition-colors">Привилегии</a>
               <a href="#items" className="text-sm font-semibold hover:text-primary transition-colors">Товары</a>
               <a href="#rules" className="text-sm font-semibold hover:text-primary transition-colors">Правила</a>
+              <a href="/new" className="text-sm font-semibold hover:text-primary transition-colors bg-primary/20 px-3 py-1 rounded">Панель сервера</a>
             </nav>
           </div>
         </div>
