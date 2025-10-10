@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -16,6 +16,28 @@ const NewPage = () => {
   const [isAddressDialogOpen, setIsAddressDialogOpen] = useState(false);
   const [tempVersion, setTempVersion] = useState('Paper 1.17.1');
   const [tempAddress, setTempAddress] = useState('funworldssezexxz.mcsh.io');
+  const [memory, setMemory] = useState(0);
+  const [cpuLoad, setCpuLoad] = useState(0);
+
+  useEffect(() => {
+    if (serverStatus === 'online') {
+      const interval = setInterval(() => {
+        setMemory(prev => {
+          const newVal = prev + Math.random() * 50;
+          return newVal > 4096 ? Math.random() * 1000 : newVal;
+        });
+        setCpuLoad(prev => {
+          const newVal = prev + (Math.random() * 30 - 15);
+          return Math.max(0, Math.min(200, newVal));
+        });
+      }, 2000);
+
+      return () => clearInterval(interval);
+    } else {
+      setMemory(0);
+      setCpuLoad(0);
+    }
+  }, [serverStatus]);
 
   const handleStart = () => {
     setServerStatus('online');
@@ -296,16 +318,28 @@ const NewPage = () => {
           <Card className="bg-card border-primary/20">
             <CardContent className="p-4">
               <p className="text-xs text-muted-foreground mb-1">MEMORY</p>
-              <p className="text-xl font-black">0.00 MiB</p>
+              <p className="text-xl font-black">{memory.toFixed(2)} MiB</p>
               <p className="text-xs text-muted-foreground">of 4 GiB</p>
+              <div className="mt-2 w-full bg-black/30 h-2 rounded-full overflow-hidden">
+                <div 
+                  className="h-full bg-primary transition-all duration-500"
+                  style={{ width: `${(memory / 4096) * 100}%` }}
+                ></div>
+              </div>
             </CardContent>
           </Card>
 
           <Card className="bg-card border-primary/20">
             <CardContent className="p-4">
               <p className="text-xs text-muted-foreground mb-1">CPU LOAD</p>
-              <p className="text-xl font-black">0.00 %</p>
+              <p className="text-xl font-black">{cpuLoad.toFixed(2)} %</p>
               <p className="text-xs text-muted-foreground">of 200 %</p>
+              <div className="mt-2 w-full bg-black/30 h-2 rounded-full overflow-hidden">
+                <div 
+                  className="h-full bg-primary transition-all duration-500"
+                  style={{ width: `${(cpuLoad / 200) * 100}%` }}
+                ></div>
+              </div>
             </CardContent>
           </Card>
 
@@ -314,6 +348,12 @@ const NewPage = () => {
               <p className="text-xs text-muted-foreground mb-1">DISK</p>
               <p className="text-xl font-black">65.73 MiB</p>
               <p className="text-xs text-muted-foreground">of 10 GiB</p>
+              <div className="mt-2 w-full bg-black/30 h-2 rounded-full overflow-hidden">
+                <div 
+                  className="h-full bg-primary transition-all duration-500"
+                  style={{ width: `${(65.73 / 10240) * 100}%` }}
+                ></div>
+              </div>
             </CardContent>
           </Card>
         </div>
