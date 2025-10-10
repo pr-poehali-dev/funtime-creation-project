@@ -2,11 +2,20 @@ import { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 import Icon from '@/components/ui/icon';
 
 const NewPage = () => {
   const [serverStatus, setServerStatus] = useState<'online' | 'offline' | 'restarting'>('offline');
   const [selectedPlan, setSelectedPlan] = useState('FREE');
+  const [version, setVersion] = useState('Paper 1.17.1');
+  const [serverAddress, setServerAddress] = useState('funworldssezexxz.mcsh.io');
+  const [isVersionDialogOpen, setIsVersionDialogOpen] = useState(false);
+  const [isAddressDialogOpen, setIsAddressDialogOpen] = useState(false);
+  const [tempVersion, setTempVersion] = useState('Paper 1.17.1');
+  const [tempAddress, setTempAddress] = useState('funworldssezexxz.mcsh.io');
 
   const handleStart = () => {
     setServerStatus('online');
@@ -67,7 +76,7 @@ const NewPage = () => {
                 <img src="https://cdn.poehali.dev/files/330e3912-fe26-42da-9bdc-85d1b13eb625.png" alt="" className="w-8 h-8 rounded" />
                 BlazeLegacy
               </h1>
-              <p className="text-sm text-muted-foreground">funworldssezexxz.mcsh.io</p>
+              <p className="text-sm text-muted-foreground">{serverAddress}</p>
             </div>
           </div>
           <Badge 
@@ -110,8 +119,15 @@ const NewPage = () => {
           <Card className="bg-card border-primary/20">
             <CardContent className="p-4">
               <p className="text-xs text-muted-foreground mb-1">VERSION</p>
-              <p className="text-lg font-bold mb-2">Paper 1.17.1</p>
-              <Button variant="link" className="text-primary p-0 h-auto text-sm">
+              <p className="text-lg font-bold mb-2">{version}</p>
+              <Button 
+                variant="link" 
+                className="text-primary p-0 h-auto text-sm"
+                onClick={() => {
+                  setTempVersion(version);
+                  setIsVersionDialogOpen(true);
+                }}
+              >
                 <Icon name="RefreshCw" size={14} className="mr-1" />
                 CHANGE
               </Button>
@@ -228,12 +244,25 @@ const NewPage = () => {
             <div>
               <p className="text-xs text-muted-foreground mb-1">ADDRESS</p>
               <div className="flex items-center justify-between bg-black/30 p-3 rounded">
-                <span className="font-mono">funworldssezexxz.mcsh.io</span>
+                <span className="font-mono">{serverAddress}</span>
                 <div className="flex gap-2">
-                  <Button variant="ghost" size="icon" className="h-8 w-8">
-                    <Icon name="Check" size={16} className="text-green-500" />
+                  <Button 
+                    variant="ghost" 
+                    size="icon" 
+                    className="h-8 w-8"
+                    onClick={() => {
+                      setTempAddress(serverAddress);
+                      setIsAddressDialogOpen(true);
+                    }}
+                  >
+                    <Icon name="Edit" size={16} className="text-primary" />
                   </Button>
-                  <Button variant="ghost" size="icon" className="h-8 w-8">
+                  <Button 
+                    variant="ghost" 
+                    size="icon" 
+                    className="h-8 w-8"
+                    onClick={() => navigator.clipboard.writeText(serverAddress)}
+                  >
                     <Icon name="Copy" size={16} />
                   </Button>
                 </div>
@@ -289,6 +318,76 @@ const NewPage = () => {
           </Card>
         </div>
       </div>
+
+      {/* Version Change Dialog */}
+      <Dialog open={isVersionDialogOpen} onOpenChange={setIsVersionDialogOpen}>
+        <DialogContent className="bg-card border-2 border-primary">
+          <DialogHeader>
+            <DialogTitle>Изменить версию сервера</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4">
+            <div>
+              <Label htmlFor="version">Версия</Label>
+              <Input
+                id="version"
+                value={tempVersion}
+                onChange={(e) => setTempVersion(e.target.value)}
+                placeholder="Paper 1.17.1"
+                className="bg-black/30 border-primary/30"
+              />
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setIsVersionDialogOpen(false)}>
+              Отмена
+            </Button>
+            <Button 
+              className="bg-primary"
+              onClick={() => {
+                setVersion(tempVersion);
+                setIsVersionDialogOpen(false);
+              }}
+            >
+              Сохранить
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Address Change Dialog */}
+      <Dialog open={isAddressDialogOpen} onOpenChange={setIsAddressDialogOpen}>
+        <DialogContent className="bg-card border-2 border-primary">
+          <DialogHeader>
+            <DialogTitle>Изменить адрес сервера</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4">
+            <div>
+              <Label htmlFor="address">Адрес</Label>
+              <Input
+                id="address"
+                value={tempAddress}
+                onChange={(e) => setTempAddress(e.target.value)}
+                placeholder="funworldssezexxz.mcsh.io"
+                className="bg-black/30 border-primary/30"
+              />
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setIsAddressDialogOpen(false)}>
+              Отмена
+            </Button>
+            <Button 
+              className="bg-primary"
+              onClick={() => {
+                setServerAddress(tempAddress);
+                setIsAddressDialogOpen(false);
+              }}
+            >
+              Сохранить
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
