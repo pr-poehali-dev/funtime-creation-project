@@ -18,9 +18,12 @@ const NewPage = () => {
   const [tempAddress, setTempAddress] = useState('funworldssezexxz.mcsh.io');
   const [memory, setMemory] = useState(0);
   const [cpuLoad, setCpuLoad] = useState(0);
+  const [onlineCount, setOnlineCount] = useState(0);
 
   useEffect(() => {
     if (serverStatus === 'online') {
+      setOnlineCount(Math.floor(1237 + Math.random() * 100));
+      
       const interval = setInterval(() => {
         setMemory(prev => {
           const newVal = prev + Math.random() * 50;
@@ -30,12 +33,14 @@ const NewPage = () => {
           const newVal = prev + (Math.random() * 30 - 15);
           return Math.max(0, Math.min(200, newVal));
         });
+        setOnlineCount(Math.floor(1237 + Math.random() * 100));
       }, 2000);
 
       return () => clearInterval(interval);
     } else {
       setMemory(0);
       setCpuLoad(0);
+      setOnlineCount(0);
     }
   }, [serverStatus]);
 
@@ -234,8 +239,11 @@ const NewPage = () => {
 
         {/* Online Players Chart */}
         <Card className="bg-card border-primary/20">
-          <CardHeader>
+          <CardHeader className="flex flex-row items-center justify-between">
             <CardTitle className="text-lg">Online Players</CardTitle>
+            <div className="text-sm font-bold text-primary">
+              {onlineCount > 0 ? `${onlineCount}/9000` : '0/9000'}
+            </div>
           </CardHeader>
           <CardContent>
             <div className="h-40 relative">
