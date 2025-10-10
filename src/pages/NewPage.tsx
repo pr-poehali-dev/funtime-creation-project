@@ -19,6 +19,9 @@ const NewPage = () => {
   const [memory, setMemory] = useState(0);
   const [cpuLoad, setCpuLoad] = useState(0);
   const [onlineCount, setOnlineCount] = useState(0);
+  const [isPauseDialogOpen, setIsPauseDialogOpen] = useState(false);
+  const [pauseTime, setPauseTime] = useState({ hours: 99, minutes: 55, seconds: 59 });
+  const [tempPauseTime, setTempPauseTime] = useState({ hours: 99, minutes: 55, seconds: 59 });
 
   useEffect(() => {
     if (serverStatus === 'online') {
@@ -43,6 +46,38 @@ const NewPage = () => {
       setOnlineCount(0);
     }
   }, [serverStatus]);
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setPauseTime(prev => {
+        let { hours, minutes, seconds } = prev;
+        
+        if (seconds > 0) {
+          seconds--;
+        } else if (minutes > 0) {
+          minutes--;
+          seconds = 59;
+        } else if (hours > 0) {
+          hours--;
+          minutes = 59;
+          seconds = 59;
+        }
+        
+        return { hours, minutes, seconds };
+      });
+    }, 1000);
+
+    return () => clearInterval(interval);
+  }, []);
+
+  const formatTime = (h: number, m: number, s: number) => {
+    return `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
+  };
+
+  const handleRenewPause = () => {
+    setPauseTime(tempPauseTime);
+    setIsPauseDialogOpen(false);
+  };
 
   const handleStart = () => {
     setServerStatus('online');
@@ -175,9 +210,16 @@ const NewPage = () => {
           <Card className="bg-card border-primary/20">
             <CardContent className="p-4">
               <p className="text-xs text-muted-foreground mb-1">PAUSES IN</p>
-              <p className="text-lg font-bold mb-2">00:59:50</p>
+              <p className="text-lg font-bold mb-2">{formatTime(pauseTime.hours, pauseTime.minutes, pauseTime.seconds)}</p>
               <div className="flex gap-2">
-                <Button variant="link" className="text-primary p-0 h-auto text-sm">
+                <Button 
+                  variant="link" 
+                  className="text-primary p-0 h-auto text-sm"
+                  onClick={() => {
+                    setTempPauseTime(pauseTime);
+                    setIsPauseDialogOpen(true);
+                  }}
+                >
                   <Icon name="RotateCcw" size={14} className="mr-1" />
                   RENEW
                 </Button>
@@ -432,6 +474,66 @@ const NewPage = () => {
               }}
             >
               Сохранить
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Pause Time Dialog */}
+      <Dialog open={isPauseDialogOpen} onOpenChange={setIsPauseDialogOpen}>
+        <DialogContent className="bg-card border-2 border-primary">
+          <DialogHeader>
+            <DialogTitle>Установить время паузы</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4">
+            <div className="grid grid-cols-3 gap-4">
+              <div>
+                <Label htmlFor="hours">Часы</Label>
+                <Input
+                  id="hours"
+                  type="number"
+                  min="0"
+                  max="999"
+                  value={tempPauseTime.hours}
+                  onChange={(e) => setTempPauseTime(prev => ({ ...prev, hours: Math.max(0, parseInt(e.target.value) || 0) }))}
+                  className="bg-black/30 border-primary/30"
+                />
+              </div>
+              <div>
+                <Label htmlFor="minutes">Минуты</Label>
+                <Input
+                  id="minutes"
+                  type="number"
+                  min="0"
+                  max="59"
+                  value={tempPauseTime.minutes}
+                  onChange={(e) => setTempPauseTime(prev => ({ ...prev, minutes: Math.max(0, Math.min(59, parseInt(e.target.value) || 0)) }))}
+                  className="bg-black/30 border-primary/30"
+                />
+              </div>
+              <div>
+                <Label htmlFor="seconds">Секунды</Label>
+                <Input
+                  id="seconds"
+                  type="number"
+                  min="0"
+                  max="59"
+                  value={tempPauseTime.seconds}
+                  onChange={(e) => setTempPauseTime(prev => ({ ...prev, seconds: Math.max(0, Math.min(59, parseInt(e.target.value) || 0)) }))}
+                  className="bg-black/30 border-primary/30"
+                />
+              </div>
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setIsPauseDialogOpen(false)}>
+              Отмена
+            </Button>
+            <Button 
+              className="bg-primary"
+              onClick={handleRenewPause}
+            >
+              Установить
             </Button>
           </DialogFooter>
         </DialogContent>
