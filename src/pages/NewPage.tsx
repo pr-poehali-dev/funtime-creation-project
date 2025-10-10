@@ -5,8 +5,26 @@ import { Badge } from '@/components/ui/badge';
 import Icon from '@/components/ui/icon';
 
 const NewPage = () => {
-  const [serverStatus, setServerStatus] = useState<'online' | 'offline'>('offline');
+  const [serverStatus, setServerStatus] = useState<'online' | 'offline' | 'restarting'>('offline');
   const [selectedPlan, setSelectedPlan] = useState('FREE');
+
+  const handleStart = () => {
+    setServerStatus('online');
+  };
+
+  const handleStop = () => {
+    setServerStatus('offline');
+  };
+
+  const handleRestart = () => {
+    setServerStatus('restarting');
+    setTimeout(() => {
+      setServerStatus('offline');
+      setTimeout(() => {
+        setServerStatus('online');
+      }, 1000);
+    }, 1000);
+  };
 
   const plans = [
     { id: 'FREE', label: 'FREE', gb: 4, active: true },
@@ -42,8 +60,11 @@ const NewPage = () => {
             </h1>
             <p className="text-sm text-muted-foreground">funworldssezexxz.mcsh.io</p>
           </div>
-          <Badge variant={serverStatus === 'online' ? 'default' : 'destructive'} className="text-sm px-4 py-1">
-            {serverStatus === 'online' ? 'ONLINE' : 'OFFLINE'}
+          <Badge 
+            variant={serverStatus === 'online' ? 'default' : serverStatus === 'restarting' ? 'secondary' : 'destructive'} 
+            className="text-sm px-4 py-1"
+          >
+            {serverStatus === 'online' ? 'ONLINE' : serverStatus === 'restarting' ? 'RESTARTING...' : 'OFFLINE'}
           </Badge>
         </div>
 
@@ -51,14 +72,25 @@ const NewPage = () => {
         <div className="grid grid-cols-3 gap-3">
           <Button 
             className="bg-blue-600 hover:bg-blue-700 font-bold"
-            onClick={() => setServerStatus('online')}
+            onClick={handleStart}
+            disabled={serverStatus === 'online' || serverStatus === 'restarting'}
           >
             START
           </Button>
-          <Button variant="secondary" className="font-bold">
+          <Button 
+            variant="secondary" 
+            className="font-bold"
+            onClick={handleRestart}
+            disabled={serverStatus === 'offline' || serverStatus === 'restarting'}
+          >
             RESTART
           </Button>
-          <Button variant="destructive" className="font-bold" onClick={() => setServerStatus('offline')}>
+          <Button 
+            variant="destructive" 
+            className="font-bold" 
+            onClick={handleStop}
+            disabled={serverStatus === 'offline' || serverStatus === 'restarting'}
+          >
             STOP
           </Button>
         </div>
